@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campeão da Libertadores 2026?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background: radial-gradient(circle at top left, #2c313a, #181b20 60%, #0d0f12 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* Canvas dos confetes */
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Padrão de marca d'água com linhas brancas de futebol (bola, troféu, campo, apito) */
+        .football-watermark {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.11;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- Bola de futebol (canto superior esquerdo) --%3E%3Ccircle cx='60' cy='60' r='26'/%3E%3Cpolygon points='60,47 72,56 67,70 53,70 48,56'/%3E%3Cline x1='60' y1='47' x2='60' y2='34'/%3E%3Cline x1='72' y1='56' x2='84' y2='51'/%3E%3Cline x1='67' y1='70' x2='75' y2='81'/%3E%3Cline x1='53' y1='70' x2='45' y2='81'/%3E%3Cline x1='48' y1='56' x2='36' y2='51'/%3E%3C!-- Trofeu (canto superior direito) --%3E%3Cpath d='M174 38 h32 v18 c0 11 -7 20 -16 20 s-16 -9 -16 -20 z'/%3E%3Cpath d='M174 43 h-8 c-4 0 -6 3 -6 7 c0 6 5 11 14 11'/%3E%3Cpath d='M206 43 h8 c4 0 6 3 6 7 c0 6 -5 11 -14 11'/%3E%3Cline x1='190' y1='76' x2='190' y2='90'/%3E%3Crect x='178' y='90' width='24' height='6' rx='2'/%3E%3C!-- Mini campo de futebol (canto inferior esquerdo) --%3E%3Crect x='26' y='162' width='68' height='46' rx='3'/%3E%3Cline x1='60' y1='162' x2='60' y2='208'/%3E%3Ccircle cx='60' cy='185' r='9'/%3E%3Crect x='26' y='174' width='11' height='22'/%3E%3Crect x='83' y='174' width='11' height='22'/%3E%3C!-- Chuteira / Estrela e Apito (canto inferior direito) --%3E%3Ccircle cx='182' cy='186' r='12'/%3E%3Cpath d='M190 177 h22 v9 h-12'/%3E%3Ccircle cx='182' cy='186' r='4'/%3E%3Cpolygon points='130,118 133,125 140,125 134,130 136,137 130,133 124,137 126,130 120,125 127,125'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 260px 260px;
+        }
+
+        /* Linhas grandes sutis de campo no fundo */
+        .pitch-lines {
+            position: fixed;
+            inset: 24px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .pitch-lines::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 240px;
+            height: 240px;
+            transform: translate(-50%, -50%);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .pitch-lines::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1.5px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Efeito de brilho neutro sutil no fundo */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+            filter: blur(110px);
+            top: 10%;
+            left: 15%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: rgba(28, 32, 38, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 28px;
+            padding: 48px 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55);
+            max-width: 520px;
+            width: 92%;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* Confronto: Escudo Palmeiras X Escudo Estudiantes */
+        .matchup-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 22px;
+            margin: 0 auto 28px auto;
+        }
+
+        .team-logo {
+            width: 112px;
+            height: 112px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+            transition: transform 0.3s ease;
+        }
+
+        .team-logo:hover {
+            transform: scale(1.06);
+        }
+
+        .team-logo img,
+        .team-logo svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .versus-x {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.75);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 36px;
+            line-height: 1.3;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .buttons-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            min-height: 66px;
+            width: 100%;
+        }
+
+        button {
+            padding: 18px 34px;
+            min-width: 165px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        /* Cor principal do Palmeiras (Verde) */
+        #btn-palmeiras {
+            background: linear-gradient(135deg, #007a43, #00522d);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 122, 67, 0.38);
+            z-index: 9999;
+            position: relative;
+        }
+
+        /* Cor principal do Estudiantes (Vermelho Albirrojo) */
+        #btn-estudiantes {
+            background: linear-gradient(135deg, #e30613, #a8000a);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(227, 6, 19, 0.38);
+            position: relative;
+        }
+
+        #btn-estudiantes:hover {
+            background: linear-gradient(135deg, #f51422, #bd000b);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(227, 6, 19, 0.5);
+        }
+
+        #btn-estudiantes:active {
+            transform: translateY(0);
+        }
+
+        /* Tela de Resultado ("Parabéns você acertou!") */
+        #result-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.35s ease forwards;
+        }
+
+        .result-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2ecc71;
+            text-shadow: 0 4px 18px rgba(46, 204, 113, 0.4);
+            margin-bottom: 32px;
+            letter-spacing: -0.5px;
+        }
+
+        #btn-voltar {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 15px 42px;
+            min-width: 160px;
+            font-size: 1.1rem;
+        }
+
+        #btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 36px 24px;
+            }
+            .team-logo {
+                width: 88px;
+                height: 88px;
+            }
+            .matchup-wrapper {
+                gap: 14px;
+            }
+            .versus-x {
+                font-size: 1.7rem;
+            }
+            h1 {
+                font-size: 1.45rem;
+            }
+            .buttons-area {
+                gap: 12px;
+            }
+            button {
+                padding: 15px 20px;
+                min-width: 132px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Elementos de marca d'água no fundo -->
+    <div class="pitch-lines"></div>
+    <div class="football-watermark"></div>
+
+    <div class="container">
+        <!-- Escudos: Palmeiras X Estudiantes -->
+        <div class="matchup-wrapper">
+            <div class="team-logo">
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg" 
+                    alt="Escudo Sociedade Esportiva Palmeiras"
+                    onerror="this.style.display='none'; document.getElementById('fallback-palmeiras').style.display='block';"
+                >
+                <svg id="fallback-palmeiras" style="display:none;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="#006437" stroke="#ffffff" stroke-width="6"/>
+                    <circle cx="100" cy="100" r="82" fill="none" stroke="#ffffff" stroke-width="3"/>
+                    <text x="100" y="118" font-family="Poppins, Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff" text-anchor="middle">P</text>
+                </svg>
+            </div>
+
+            <span class="versus-x">X</span>
+
+            <div class="team-logo">
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/d/da/Escudo_de_Estudiantes_de_La_Plata.svg" 
+                    alt="Escudo Club Estudiantes de La Plata"
+                    onerror="this.style.display='none'; document.getElementById('fallback-estudiantes').style.display='block';"
+                >
+                <svg id="fallback-estudiantes" style="display:none;" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25,15 H175 V120 C175,175 100,208 100,208 C100,208 25,175 25,120 Z" fill="#ffffff" stroke="#e30613" stroke-width="8"/>
+                    <path d="M55,19 V162" stroke="#e30613" stroke-width="18"/>
+                    <path d="M100,19 V200" stroke="#e30613" stroke-width="18"/>
+                    <path d="M145,19 V162" stroke="#e30613" stroke-width="18"/>
+                    <rect x="29" y="55" width="142" height="36" fill="#e30613"/>
+                    <text x="100" y="80" font-family="Poppins, Arial, sans-serif" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle">EDLP</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Tela da Pergunta -->
+        <div id="question-screen">
+            <h1>Quem será o campeão da libertadores 2026?</h1>
+            <div class="buttons-area" id="buttons-area">
+                <button id="btn-palmeiras" type="button">Palmeiras</button>
+                <button id="btn-estudiantes" type="button">Estudiantes</button>
+            </div>
+        </div>
+
+        <!-- Tela do Resultado -->
+        <div id="result-screen">
+            <div class="result-text">Parabéns você acertou!</div>
+            <button id="btn-voltar" type="button">Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        const btnPalmeiras = document.getElementById('btn-palmeiras');
+        const btnEstudiantes = document.getElementById('btn-estudiantes');
+        const btnVoltar = document.getElementById('btn-voltar');
+        const questionScreen = document.getElementById('question-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const buttonsArea = document.getElementById('buttons-area');
+
+        let isFloating = false;
+        let placeholder = null;
+
+        function moveButtonAway() {
+            const btnRect = btnPalmeiras.getBoundingClientRect();
+            const btnWidth = btnRect.width || 165;
+            const btnHeight = btnRect.height || 62;
+
+            const margin = 24;
+            const maxX = window.innerWidth - btnWidth - margin;
+            const maxY = window.innerHeight - btnHeight - margin;
+
+            let newX, newY;
+            let attempts = 0;
+
+            do {
+                newX = Math.max(margin, Math.floor(Math.random() * maxX));
+                newY = Math.max(margin, Math.floor(Math.random() * maxY));
+                attempts++;
+            } while (
+                Math.hypot(newX - btnRect.left, newY - btnRect.top) < 180 &&
+                attempts < 20
+            );
+
+            if (!isFloating) {
+                // Espaçador invisível para manter o botão "Estudiantes" parado no mesmo lugar
+                placeholder = document.createElement('div');
+                placeholder.style.width = `${btnRect.width}px`;
+                placeholder.style.height = `${btnRect.height}px`;
+                placeholder.style.flexShrink = '0';
+                placeholder.style.visibility = 'hidden';
+                buttonsArea.insertBefore(placeholder, btnPalmeiras);
+
+                document.body.appendChild(btnPalmeiras);
+                btnPalmeiras.style.position = 'fixed';
+                isFloating = true;
+            }
+
+            btnPalmeiras.style.left = `${newX}px`;
+            btnPalmeiras.style.top = `${newY}px`;
+        }
+
+        // Foge antes mesmo do clique no desktop
+        btnPalmeiras.addEventListener('mouseenter', moveButtonAway);
+        btnPalmeiras.addEventListener('mouseover', moveButtonAway);
+        btnPalmeiras.addEventListener('mousemove', moveButtonAway);
+
+        // Foge também no celular/tablet
+        btnPalmeiras.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButtonAway();
+        }, { passive: false });
+
+        // Bloqueia clique via teclado
+        btnPalmeiras.addEventListener('focus', () => {
+            btnPalmeiras.blur();
+            moveButtonAway();
+        });
+
+        // Sistema de Confetes
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let confettiPieces = [];
+        let animationFrameId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function launchConfetti() {
+            const colors = ['#e30613', '#ffffff', '#2ecc71', '#f1c40f', '#ff4757'];
+            confettiPieces = [];
+
+            for (let i = 0; i < 160; i++) {
+                confettiPieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    w: Math.random() * 10 + 6,
+                    h: Math.random() * 6 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3.5 + 2.5,
+                    speedX: Math.random() * 2 - 1,
+                    angle: Math.random() * 360,
+                    spin: Math.random() * 8 - 4
+                });
+            }
+
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = 0;
+
+            confettiPieces.forEach((p) => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.angle += p.spin;
+
+                if (p.y < canvas.height + 20) active++;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.angle * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+            });
+
+            if (active > 0) {
+                animationFrameId = requestAnimationFrame(animateConfetti);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function stopConfetti() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            confettiPieces = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Ação do botão "Estudiantes"
+        btnEstudiantes.addEventListener('click', () => {
+            questionScreen.style.display = 'none';
+            btnPalmeiras.style.display = 'none';
+            resultScreen.style.display = 'flex';
+            launchConfetti();
+        });
+
+        // Ação do botão "Voltar"
+        btnVoltar.addEventListener('click', () => {
+            stopConfetti();
+            resultScreen.style.display = 'none';
+            questionScreen.style.display = 'block';
+
+            if (placeholder) {
+                placeholder.remove();
+                placeholder = null;
+            }
+
+            btnPalmeiras.style.position = 'relative';
+            btnPalmeiras.style.left = '';
+            btnPalmeiras.style.top = '';
+            btnPalmeiras.style.right = '';
+            btnPalmeiras.style.bottom = '';
+            btnPalmeiras.style.margin = '0';
+            btnPalmeiras.style.display = 'inline-flex';
+            btnPalmeiras.style.alignItems = 'center';
+            btnPalmeiras.style.justifyContent = 'center';
+
+            buttonsArea.innerHTML = '';
+            buttonsArea.appendChild(btnPalmeiras);
+            buttonsArea.appendChild(btnEstudiantes);
+            isFloating = false;
+        });
+    </script>
+</body>
+</html>
