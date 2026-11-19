@@ -130,11 +130,30 @@
             justify-content: center;
             align-items: center;
             filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
         }
 
         .team-logo:hover {
             transform: scale(1.06);
+        }
+
+        /* Destaque centralizado para o Estudiantes quando vence */
+        .team-logo.champion-highlight {
+            width: 138px;
+            height: 138px;
+            animation: championPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes championPop {
+            0% {
+                transform: scale(0.85);
+            }
+            70% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .team-logo img,
@@ -259,6 +278,10 @@
                 width: 88px;
                 height: 88px;
             }
+            .team-logo.champion-highlight {
+                width: 115px;
+                height: 115px;
+            }
             .matchup-wrapper {
                 gap: 14px;
             }
@@ -290,7 +313,7 @@
     <div class="container">
         <!-- Escudos: Palmeiras X Estudiantes -->
         <div class="matchup-wrapper">
-            <div class="team-logo">
+            <div class="team-logo" id="logo-palmeiras">
                 <img 
                     src="https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg" 
                     alt="Escudo Sociedade Esportiva Palmeiras"
@@ -303,9 +326,9 @@
                 </svg>
             </div>
 
-            <span class="versus-x">X</span>
+            <span class="versus-x" id="versus-x">X</span>
 
-            <div class="team-logo">
+            <div class="team-logo" id="logo-estudiantes">
                 <img 
                     src="https://upload.wikimedia.org/wikipedia/commons/d/da/Escudo_de_Estudiantes_de_La_Plata.svg" 
                     alt="Escudo Club Estudiantes de La Plata"
@@ -345,6 +368,9 @@
         const questionScreen = document.getElementById('question-screen');
         const resultScreen = document.getElementById('result-screen');
         const buttonsArea = document.getElementById('buttons-area');
+        const logoPalmeiras = document.getElementById('logo-palmeiras');
+        const versusX = document.getElementById('versus-x');
+        const logoEstudiantes = document.getElementById('logo-estudiantes');
 
         let isFloating = false;
         let placeholder = null;
@@ -472,19 +498,28 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Ação do botão "Estudiantes"
+        // Ação do botão "Estudiantes" — esconde o Palmeiras e o X, deixando só o logo do Estudiantes centralizado
         btnEstudiantes.addEventListener('click', () => {
             questionScreen.style.display = 'none';
             btnPalmeiras.style.display = 'none';
+
+            logoPalmeiras.style.display = 'none';
+            versusX.style.display = 'none';
+            logoEstudiantes.classList.add('champion-highlight');
+
             resultScreen.style.display = 'flex';
             launchConfetti();
         });
 
-        // Ação do botão "Voltar"
+        // Ação do botão "Voltar" — restaura os dois escudos com o X e os dois botões
         btnVoltar.addEventListener('click', () => {
             stopConfetti();
             resultScreen.style.display = 'none';
             questionScreen.style.display = 'block';
+
+            logoPalmeiras.style.display = 'flex';
+            versusX.style.display = 'inline';
+            logoEstudiantes.classList.remove('champion-highlight');
 
             if (placeholder) {
                 placeholder.remove();
